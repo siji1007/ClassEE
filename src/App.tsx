@@ -43,21 +43,18 @@ function App() {
   //     document.removeEventListener("keydown", disableDevToolsShortcuts);
   //   };
   // }, []);
-
-
   return (
     <Router>
       {/* Fixed Header */}
       <Header />
-
       {/* Page Content with padding to avoid overlap */}
-      <div className="pt-13"> {/* Adjust based on your header height */}
+      <div className="pt-13"> {/* header height */}
         <Routes>
-          <Route path="/" element={<LoginForm />} />
-          <Route path="/signin" element={<LoginForm />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<Admin/>} />
+          <Route path="/" element={<LoginForm />} />             {/* Landing page*/}
+          <Route path="/signin" element={<LoginForm />} />       {/* Landing page*/}
+          <Route path="/about" element={<About />} />            {/* About page*/}
+          <Route path="/dashboard" element={<Dashboard />} />    {/* Dashboard for Student and Instructor*/}
+          <Route path="/admin" element={<Admin/>} />             {/* Administrator page*/}
         </Routes>
       </div>
       <Footer/>

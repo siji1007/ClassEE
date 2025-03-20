@@ -4,6 +4,7 @@ import Profile from '../assets/profile.jpg';
 import Schedule from "../schedule"; 
 import { FaBuilding, FaRegFileAlt, FaUser, FaSearch } from 'react-icons/fa';
 import { HiOfficeBuilding, HiMenu, HiX } from "react-icons/hi";
+import { IoIosArrowBack } from "react-icons/io";
 
 import Test from '../assets/test.jpg';
 
@@ -12,7 +13,22 @@ const Dashboard: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [role, setRole] = useState<string | null>("");
     const [rolecrm, setRolecrm] = useState<string | null>("");
+    const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
 
+    const profiles = [
+      { id: 1, name: "Alice Guo" },
+      { id: 2, name: "Bob Marley" },
+      { id: 3, name: "Charlie Pot" },
+      { id: 4, name: "David Laid" },
+      { id: 5, name: "Eve" },
+      { id: 6, name: "Frank Lyn" },
+      { id: 7, name: "Grace Pot" },
+      { id: 8, name: "Hannah Lie" },
+      { id: 9, name: "Isaac Obusan" },
+      { id: 10, name: "Jack Chan" },
+      { id: 11, name: "Jake Corpus" },
+      { id: 12, name: "Gayle Tie" },
+  ];
     useEffect(() => {
       // Retrieve role from localStorage on component mount 
       const storedRole = localStorage.getItem("role");
@@ -22,12 +38,22 @@ const Dashboard: React.FC = () => {
     }, []);
 
     useEffect(() => {
+      // Retrieve the stored room from localStorage when the component mounts
+      const storedRoom = localStorage.getItem("facilities");
+      if (storedRoom) {
+          setSelectedRoom(parseInt(storedRoom, 10));
+      }
+  }, []);
+
+    useEffect(() => {
         if (role === "Instructor") {
             setRolecrm("Inst.");
         } else {
             setRolecrm("Stud.");
         }
+        
     }, [role]);
+
     
     
     const handleSearchClick = () => {
@@ -39,6 +65,19 @@ const Dashboard: React.FC = () => {
     const handleFacilities = () => {
         alert("Facilities Clicked!");
     };
+
+    const handleRoomClick = (room: number) => {
+      setSelectedRoom(room);
+      localStorage.setItem("facilities", room.toString());
+      window.location.reload();
+    };
+
+  
+  const handleBack = () => {
+    localStorage.removeItem("facilities");
+    window.location.reload();
+  }
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -86,19 +125,17 @@ const Dashboard: React.FC = () => {
           <div className="mt-4 p-4 bg-gradient-to-br from-white to-gray-200 rounded-lg text-black">
             <h3 className="text-lg font-semibold border-b-2 border-black inline-block mb-2">FACILITIES</h3>
             <div className="grid grid-cols-3 gap-3 mt-2 text-sm">
-              {[201, 202, 203, 204, 205, 206].map((room) => (
-                <span key={room} className="flex items-center space-x-1">
-                  <HiOfficeBuilding /> {room}
-                </span>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mt-4 text-sm">
-              {["LAB 1", "LAB 2", "LAB 3"].map((lab) => (
-                <span key={lab} className="flex items-center space-x-1">
-                  <HiOfficeBuilding /> {lab}
-                </span>
-              ))}
+                {[201, 202, 203, 204, 205, 206].map((room) => (
+                    <span
+                        key={room}
+                        className={`flex items-center space-x-1 cursor-pointer p-2 rounded-md ${
+                            selectedRoom === room ? "bg-red-800 text-white" : "hover:text-blue-500"
+                        }`}
+                        onClick={() => handleRoomClick(room)}
+                    >
+                        <HiOfficeBuilding/>{room}
+                    </span>
+                ))}
             </div>
           </div>
         </div>
@@ -180,12 +217,21 @@ const Dashboard: React.FC = () => {
 
 
         {/* Profile Icons List - Aligned Horizontally */}
-   <div className="flex sm:justify-end justify-start pb-2 w-full mt-2 sm:mt-0">
+        <div className="flex sm:justify-end justify-start pb-2 w-full mt-2 sm:mt-0">
+          {selectedRoom && (
+            <button className="mr-3 p-2 rounded-full   transition duration-200" onClick={handleBack}>
+              <IoIosArrowBack className="text-red-800 text-xl font-bold" />
+            </button>
+          )}
 
+
+          
             {/* Main Profile Section */}
             <div className="flex flex-col items-center pr-3 border-r-2 border-red-800">
             <img src={Profile} alt="Main Profile" className="w-12 h-12 rounded-full" />
-            <span className="text-red-800 text-[10px] mt-1 font-bold text-center w-full">Mark Anthony</span>
+            <span className="text-red-800 text-[10px] mt-1 font-bold text-center w-full">
+              {selectedRoom ? "Room " + selectedRoom : "Mark Anthony"}
+            </span>
             </div>
 
 
@@ -194,28 +240,26 @@ const Dashboard: React.FC = () => {
                 className="ml-3 bg-gradient-to-br from-red-300 via-red-400 to-red-800 rounded-lg p-1 
                 flex space-x-5 overflow-x-auto flex-nowrap whitespace-nowrap w-full sm:w-auto"
             >
-                {[
-                { id: 1, name: "Alice Guo" },
-                { id: 2, name: "Bob Marley" },
-                { id: 3, name: "Charlie Pot" },
-                { id: 4, name: "David Laid" },
-                { id: 5, name: "Eve" },
-                { id: 6, name: "Frank Lyn" },
-                { id: 7, name: "Grace Pot" },
-                { id: 8, name: "Hannah Lie" },
-                { id: 9, name: "Isaac Obusan" },
-                { id: 10, name: "Jack Chan" },
-                { id: 11, name: "Jake Corpus" },
-                { id: 12, name: "Gayle Tie" },
-                ].map((profile) => (
-                    <div key={profile.id} className="flex flex-col items-center min-w-[60px]">
-                    <img src={Profile} alt={`Profile ${profile.id}`} 
-                         className="w-12 h-12 rounded-full object-cover shrink-0" />
-                    <span className="text-white text-[10px] mt-1">{profile.name}</span>
-                </div>
+                {profiles.map((profile) => (
+                 <div
+                 key={profile.id}
+                 className={`flex flex-col items-center min-w-[60px] p-1 rounded-lg transition-transform ${
+                     (selectedRoom === 201 && profile.name === "Bob Marley") || 
+                     (selectedRoom === 202 && profile.name === "Isaac Obusan")  || (selectedRoom === 203 && profile.name === "Eve") 
+                         ? "border-4 border-green-500 animate-borderRotate  relative "
+                         : ""
+                 }`}
+             >
+                
+                        <img
+                            src={Profile}
+                            alt={`Profile ${profile.id}`}
+                            className="w-12 h-12 rounded-full object-cover shrink-0"
+                        />
+                        <span className="text-white text-[10px] mt-1">{profile.name}</span>
+                    </div>
                 ))}
-            </div>
-            </div>
+            </div>            </div>
 
 
         </div>

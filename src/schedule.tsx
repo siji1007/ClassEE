@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 // Initial Schedule Data with Facility
 const initialSchedule = [
   { id: "1", name: "Physics", start: "9:00 AM", end: "4:30 PM", day: "MON", facility: "Lab 1 | Room 202" },
-  { id: "2", name: "Lab 2 | BSEE 2A", start: "11:00 AM", end: "1:00 PM", day: "WED", facility: "Lab 2 | Engineering" },
+  { id: "2", name: "Lab 2 | BSEE 2A", start: "11:00 AM", end: "1:00 PM", day: "WED", facility: "Room 203" },
   { id: "3", name: "Thermodynamics", start: "11:30 AM", end: "2:30 PM", day: "TUE", facility: "Room 201" },
+  { id: "4", name: "Calculus II", start: "8:30 AM", end: "10:30 AM", day: "FRI", facility: "Room 204" },
 ];
 
 // Weekdays
@@ -32,6 +33,20 @@ const parseTime = (timeStr: string) => {
 
 const Schedule = () => {
   const [schedule, setSchedule] = useState(initialSchedule);
+  const [facilityFilter, setFacilityFilter] = useState<string | null>(null);
+
+  // Fetch facility filter from localStorage on component mount
+  useEffect(() => {
+    const storedFacility = localStorage.getItem("facilities");
+    if (storedFacility) {
+      setFacilityFilter(storedFacility);
+    }
+  }, []);
+
+  // Filter schedule based on the stored facility
+  const filteredSchedule = facilityFilter
+    ? schedule.filter((classItem) => classItem.facility.includes(facilityFilter))
+    : schedule;
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -46,18 +61,20 @@ const Schedule = () => {
     const newDay = weekdays[parseInt(destination.droppableId, 10)];
     const draggedStart = parseTime(draggedItem.start);
     const draggedEnd = parseTime(draggedItem.end);
-
+    const facilities = localStorage.getItem("facilities");
     // Check for schedule conflicts
-    const hasConflict = schedule.some(
-      (item) =>
-        item.day === newDay &&
-        item.id !== draggedItem.id &&
-        !(parseTime(item.end) <= draggedStart || parseTime(item.start) >= draggedEnd)
-    );
-
-    if (hasConflict) {
-      alert("Schedule conflict! Cannot move to the selected time slot.");
-      return;
+    if (!facilities) {
+      const hasConflict = schedule.some(
+        (item) =>
+          item.day === newDay &&
+          item.id !== draggedItem.id &&
+          !(parseTime(item.end) <= draggedStart || parseTime(item.start) >= draggedEnd)
+      );
+    
+      if (hasConflict) {
+        alert("Schedule conflict! Cannot move to the selected time slot.");
+        return;
+      }
     }
 
     // Update the schedule if no conflict
@@ -101,8 +118,8 @@ const Schedule = () => {
                       <div key={timeIndex} className="h-[60px] border-t border-gray-300"></div>
                     ))}
 
-                    {/* Render Schedule Items */}
-                    {schedule
+                    {/* Render Filtered Schedule Items */}
+                    {filteredSchedule
                       .filter((classItem) => classItem.day === day)
                       .map((classItem) => {
                         const startHour = parseTime(classItem.start);
@@ -126,7 +143,7 @@ const Schedule = () => {
                                   backgroundColor: "#9F5151",
                                 }}
                               >
-                               <p className="font-bold text-sm sm:text-base md:text-lg">{classItem.name}</p>
+                                <p className="font-bold text-sm sm:text-base md:text-lg">{classItem.name}</p>
                                 <p className="text-xs sm:text-sm md:text-base">{classItem.start} - {classItem.end}</p>
                                 <p className="text-[10px] sm:text-sm italic">{classItem.facility}</p>
                                 {/* Facility/Room Display */}
